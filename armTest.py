@@ -18,7 +18,7 @@ while(1):
     for i in range(0,100):
         ret = arm.move_xyz(i - 50, i-50, 0)
         print(ret)
-        sleep(0.01)
+        sleep(0.1)
     #Next I
 #End While
 
