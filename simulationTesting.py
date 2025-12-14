@@ -80,7 +80,7 @@ trans = transforms.Compose([transforms.Resize((680,680)),transforms.ToTensor(),]
 reqPer = "ANTHONY"
 faceFound = False
 ret,frame = cap.read() #Gets a sample frame to determine window size
-frame = cv2.imread("test2.jpg")
+#frame = cv2.imread("test2.jpg")
 h,w,_ = frame.shape #Gets window size
 print(w,h)
 camCenterX, camCenterY = w/2,h/2
