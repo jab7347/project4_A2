@@ -62,6 +62,7 @@ HTML_PAGE = """
 arm = Arm2D()
 # Just print initial status if available
 st = arm.status().get("parsed")
+print(st)
 #Sets up NN Models
 mtcnn = MTCNN(device="GPU:0")
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -129,9 +130,7 @@ def generate_Frames():
                         if abs(fx) > PIXEL_TOLERANCE or abs(fy) > PIXEL_TOLERANCE:
                             tx = (fx-camCenterX) * Kp_x
                             ty = (fy-camCenterY) * Kp_y
-                            #move_robot(tx,ty)
-                            cv2.circle(frame, (int(fx),int(fy)), 5, (0, 255, 0), -1)
-                            cv2.circle(frame, (int(camCenterX), int(camCenterY)), 5, (255, 0, 0), -1)
+                            arm.move_xyz(tx, ty, 0)
                         #End if
                     #End if
                 #end if
