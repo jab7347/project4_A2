@@ -10,6 +10,7 @@ from flask import Flask, Response, render_template_string
 from time import sleep
 #End Sub
 arm = Arm2D()
+arm.initialize()
 # Just print initial status if available
 st = arm.status().get("parsed")
 print(st)
