@@ -64,16 +64,16 @@ arm = Arm2D()
 st = arm.status().get("parsed")
 print(st)
 #Sets up NN Models
-mtcnn = MTCNN(device="GPU:0")
+mtcnn = MTCNN(device="CPU")
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-resNet = InceptionResnetV1(pretrained="vggface2",num_classes=5,classify=True)
+resNet = InceptionResnetV1(num_classes=5,classify=True)
+resNet.load_state_dict(torch.load("best.pth",map_location=device,weights_only=True)) #Loads pretrained weights
 resNet.eval()
-resNet.load_state_dict(torch.load("best.pth",map_location=device)) #Loads pretrained weights
 resNet.to(device)
 
 # Proportional control gain (tune this)
-Kp_x = 0.002  # meters per pixel
-Kp_y = 0.002
+Kp_x = 0.01  # meters per pixel
+Kp_y = 0.01
 
 # Deadzone to avoid jitter
 PIXEL_TOLERANCE = 5
@@ -130,7 +130,7 @@ def generate_Frames():
                         if abs(fx) > PIXEL_TOLERANCE or abs(fy) > PIXEL_TOLERANCE:
                             tx = (fx-camCenterX) * Kp_x
                             ty = (fy-camCenterY) * Kp_y
-                            arm.move_xyz(tx, ty, 0)
+                            ret = arm.move_xyz(tx, ty, 0)
                         #End if
                     #End if
                 #end if
