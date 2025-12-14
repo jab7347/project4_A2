@@ -140,7 +140,7 @@ def generate_Frames():
             #End Case
         #End Select
         currState = nextState #Syncs current state
-        ret, buffer = cv2.imencode('.jpg', out_Frame)
+        ret, buffer = cv2.imencode('.jpg', outFrame)
         frame_bytes = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
