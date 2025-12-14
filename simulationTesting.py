@@ -52,7 +52,7 @@ mtcnn = MTCNN(device="GPU:0")
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 resNet = InceptionResnetV1(pretrained="vggface2",num_classes=5,classify=True)
 resNet.eval()
-resNet.load_state_dict(torch.load("best.pth")) #Loads pretrained weights
+resNet.load_state_dict(torch.load("best.pth",map_location=device)) #Loads pretrained weights
 resNet.to(device)
 
 # Proportional control gain (tune this)
