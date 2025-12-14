@@ -159,7 +159,7 @@ def index():
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route."""
-    return Response(generate_frames(),
+    return Response(generate_Frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
