@@ -13,12 +13,8 @@ arm = Arm2D()
 # Just print initial status if available
 st = arm.status().get("parsed")
 print(st)
-
-while(1):
-    for i in range(0,100):
-        ret = arm.move_xyz(i - 50, i-50, 0)
-        print(ret)
-        sleep(0.1)
+ret = arm.move_xyz(1000, 1000, 0)
+print(ret)
     #Next I
 #End While
 
