@@ -7,6 +7,7 @@ from facenet_pytorch import InceptionResnetV1
 from torchvision import transforms
 from PIL import Image
 from arm2d import Arm2D  # your existing API
+from flask import Flask, Response, render_template_string
 
 #Step 1: Find requested Face in frame
     #Step 1.1: Enter Name Value
@@ -122,16 +123,31 @@ while(1): #Main while loop which holds the state machine
             outFrame = frame #Writes frame
         #End Case
     #End Select
-    cv2.imshow('Project 4 Main Display', outFrame) #Displays output frame
-    k = cv2.waitKey(30) & 0xff #Gets keystroke
-    if k == 113: #Quit key
-        cap.release()
-        cv2.destroyAllWindows()
-        break
+    #cv2.imshow('Project 4 Main Display', outFrame) #Displays output frame
+    ret, buffer = cv2.imencode('.jpg', outFrame)
+    if not ret:
+        continue
+    frame_bytes = buffer.tobytes()
+    # Yield frame in HTTP multipart format
+    yield (b'--frame\r\n'
+           b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
     currState = nextState #Syncs current state
 #End While
 
+@app.route('/')
+def index():
+    """Home page with video stream."""
+    return render_template_string(HTML_PAGE)
 
+@app.route('/video_feed')
+def video_feed():
+    """Video streaming route."""
+    return Response(generate_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+if __name__ == '__main__':
+    # Run Flask app
+    app.run(host='0.0.0.1', port=5000, debug=False, threaded=True)
 
 
 
