@@ -14,7 +14,7 @@ arm = Arm2D()
 # Just print initial status if available
 st = arm.status().get("parsed")
 print(st)
-ret = arm.move_xyz(1000, 1000, 0)
+ret = arm.move_xyz(100, 100, 0)
 print(ret)
     #Next I
 #End While
