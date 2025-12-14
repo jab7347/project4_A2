@@ -1,0 +1,139 @@
+#https://github.com/shahriar193/ar4_mk1_robotic_arm/blob/main/ar4_api/point_to_tag_ik.py
+import cv2
+import numpy as np
+from mtcnn import MTCNN
+import torch
+from facenet_pytorch import InceptionResnetV1
+from torchvision import transforms
+from PIL import Image
+from arm2d import Arm2D  # your existing API
+
+#Step 1: Find requested Face in frame
+    #Step 1.1: Enter Name Value
+    #Step 1.2: Get all faces in the frame
+    #Step 1.3: Id the correct Face
+    #Step 1.4: Export location in the frame of the face
+#Step 2: Determine Relative Position of the face in frame
+#Step 3: Determine Translation required to move
+#Step 4: Move to the location specified by the translation
+
+
+def id_face(trans,resNet,cropped_frame,device):
+    pil_image = Image.fromarray(cropped_frame) #Tranforms the image in into the PIL format
+    imgTensor = trans(pil_image).unsqueeze(0) #converts into Tensor + 1 dimension for batch(unused)
+    with torch.no_grad(): #Disables gradient
+        rawResult = resNet(imgTensor.to(device)) #Runs models on the image
+        max_values, max_indices = torch.max(rawResult, dim=1) #Gets the max values
+        maxW = max_indices[0]
+        pName = "UNKNOWN"
+        match maxW: #Case state to determine who is being looked at based on the index of the max confidence
+            case 0:
+                pName = "ANTHONY"
+            case 1:
+                pName = "JACOB"
+            case 2:
+                pName = "JACKSON"
+            case 3:
+                pName = "JOSH"
+            case 4:
+                pName = "TOSHIRO"
+        print(maxW, pName) if debugMd else 0
+        return pName #Returns name
+#End sub
+#def move_robot(tx,ty):
+
+
+#End Sub
+arm = Arm2D()
+# Just print initial status if available
+st = arm.status().get("parsed")
+#Sets up NN Models
+mtcnn = MTCNN(device="GPU:0")
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+resNet = InceptionResnetV1(pretrained="vggface2",num_classes=5,classify=True)
+resNet.eval()
+resNet.load_state_dict(torch.load("best.pth")) #Loads pretrained weights
+resNet.to(device)
+
+# Proportional control gain (tune this)
+Kp_x = 0.002  # meters per pixel
+Kp_y = 0.002
+
+# Deadzone to avoid jitter
+PIXEL_TOLERANCE = 5
+
+currState = "NONE" #Sets the default state to SF
+nextState = "FACE_DETECT"
+p0 = [] #Init. point array 0
+debugMd = False
+pName = "UNKNOWN"
+tracking = False #Init. tracking to false
+look_at_me = False #Defaults look at me to false
+cap = cv2.VideoCapture(1) #Sets up the video capture
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+
+#camCenterX = cap.get(cv2.CAP_PROP_FRAME_WIDTH)/2
+#camCenterY = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)/2
+
+trans = transforms.Compose([transforms.Resize((680,680)),transforms.ToTensor(),]) #Transform function
+reqPer = "ANTHONY"
+faceFound = False
+ret,frame = cap.read() #Gets a sample frame to determine window size
+frame = cv2.imread("test2.jpg")
+h,w,_ = frame.shape #Gets window size
+print(w,h)
+camCenterX, camCenterY = w/2,h/2
+while(1): #Main while loop which holds the state machine
+    ret, frame = cap.read() #Reads in frame from video capture
+    match currState: #Sustaning Machine, state setup does not occur here
+        case "NONE": #Straight frane passthrough
+            outFrame = frame
+        #End Case
+        case "FACE_DETECT": #Face detect mode
+            print("FACE_DETECT")
+            frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            result = mtcnn.detect_faces(frame) #Runs the model on the image
+            if len(result) > 0:  # If there was a face found
+                for face in result:
+                    x, y, w, h = face['box']
+                    roi = frame_gray[y:y + h, x:x + w]  # Returns cropped region of interest for face
+                    cropped_frame = frame[y:y + h, x:x + w]  # Crops the image to only include the face
+                    pName = id_face(trans,resNet,cropped_frame,device)
+                    print(pName)
+                    if pName == reqPer:
+                        destCenter = x+(w/2) , y + (h/2)
+                        faceFound = True
+                        break
+                    # end if
+                if faceFound:
+                    #Calculates pixel error and converts based on scaled values
+                    fx, fy = destCenter
+                    print(fx,fy)
+                    if abs(fx) > PIXEL_TOLERANCE or abs(fy) > PIXEL_TOLERANCE:
+                        tx = (fx-camCenterX) * Kp_x
+                        ty = (fy-camCenterY) * Kp_y
+                        #move_robot(tx,ty)
+                        cv2.circle(frame, (int(fx),int(fy)), 5, (0, 255, 0), -1)
+                        cv2.circle(frame, (int(camCenterX), int(camCenterY)), 5, (255, 0, 0), -1)
+                    #End if
+                #End if
+            #end if
+            outFrame = frame #Writes frame
+        #End Case
+    #End Select
+    cv2.imshow('Project 4 Main Display', outFrame) #Displays output frame
+    k = cv2.waitKey(30) & 0xff #Gets keystroke
+    if k == 113: #Quit key
+        cap.release()
+        cv2.destroyAllWindows()
+        break
+    currState = nextState #Syncs current state
+#End While
+
+
+
+
+
+
+
