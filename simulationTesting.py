@@ -8,7 +8,6 @@ from torchvision import transforms
 from PIL import Image
 from arm2d import Arm2D  # your existing API
 from flask import Flask, Response, render_template_string
-
 #Step 1: Find requested Face in frame
     #Step 1.1: Enter Name Value
     #Step 1.2: Get all faces in the frame
@@ -43,6 +42,21 @@ def id_face(trans,resNet,cropped_frame,device):
 #End sub
 #def move_robot(tx,ty):
 
+app = Flask(__name__)
+
+# HTML template for displaying the video stream
+HTML_PAGE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webcam Stream</title>
+</head>
+<body>
+    <h1>JACKSON B. PROJECT 4</h1>
+    <img src="{{ url_for('video_feed') }}" width="640" height="480">
+</body>
+</html>
+"""
 
 #End Sub
 arm = Arm2D()
@@ -85,54 +99,57 @@ ret,frame = cap.read() #Gets a sample frame to determine window size
 h,w,_ = frame.shape #Gets window size
 print(w,h)
 camCenterX, camCenterY = w/2,h/2
-while(1): #Main while loop which holds the state machine
-    ret, frame = cap.read() #Reads in frame from video capture
-    match currState: #Sustaning Machine, state setup does not occur here
-        case "NONE": #Straight frane passthrough
-            outFrame = frame
-        #End Case
-        case "FACE_DETECT": #Face detect mode
-            print("FACE_DETECT")
-            frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            result = mtcnn.detect_faces(frame) #Runs the model on the image
-            if len(result) > 0:  # If there was a face found
-                for face in result:
-                    x, y, w, h = face['box']
-                    roi = frame_gray[y:y + h, x:x + w]  # Returns cropped region of interest for face
-                    cropped_frame = frame[y:y + h, x:x + w]  # Crops the image to only include the face
-                    pName = id_face(trans,resNet,cropped_frame,device)
-                    print(pName)
-                    if pName == reqPer:
-                        destCenter = x+(w/2) , y + (h/2)
-                        faceFound = True
-                        break
-                    # end if
-                if faceFound:
-                    #Calculates pixel error and converts based on scaled values
-                    fx, fy = destCenter
-                    print(fx,fy)
-                    if abs(fx) > PIXEL_TOLERANCE or abs(fy) > PIXEL_TOLERANCE:
-                        tx = (fx-camCenterX) * Kp_x
-                        ty = (fy-camCenterY) * Kp_y
-                        #move_robot(tx,ty)
-                        cv2.circle(frame, (int(fx),int(fy)), 5, (0, 255, 0), -1)
-                        cv2.circle(frame, (int(camCenterX), int(camCenterY)), 5, (255, 0, 0), -1)
+def generateFrames():
+    while(1): #Main while loop which holds the state machine
+        ret, frame = cap.read() #Reads in frame from video capture
+        match currState: #Sustaning Machine, state setup does not occur here
+            case "NONE": #Straight frane passthrough
+                outFrame = frame
+            #End Case
+            case "FACE_DETECT": #Face detect mode
+                print("FACE_DETECT")
+                frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                result = mtcnn.detect_faces(frame) #Runs the model on the image
+                if len(result) > 0:  # If there was a face found
+                    for face in result:
+                        x, y, w, h = face['box']
+                        roi = frame_gray[y:y + h, x:x + w]  # Returns cropped region of interest for face
+                        cropped_frame = frame[y:y + h, x:x + w]  # Crops the image to only include the face
+                        pName = id_face(trans,resNet,cropped_frame,device)
+                        print(pName)
+                        if pName == reqPer:
+                            destCenter = x+(w/2) , y + (h/2)
+                            faceFound = True
+                            break
+                        # end if
+                    if faceFound:
+                        #Calculates pixel error and converts based on scaled values
+                        fx, fy = destCenter
+                        print(fx,fy)
+                        if abs(fx) > PIXEL_TOLERANCE or abs(fy) > PIXEL_TOLERANCE:
+                            tx = (fx-camCenterX) * Kp_x
+                            ty = (fy-camCenterY) * Kp_y
+                            #move_robot(tx,ty)
+                            cv2.circle(frame, (int(fx),int(fy)), 5, (0, 255, 0), -1)
+                            cv2.circle(frame, (int(camCenterX), int(camCenterY)), 5, (255, 0, 0), -1)
+                        #End if
                     #End if
-                #End if
-            #end if
-            outFrame = frame #Writes frame
-        #End Case
-    #End Select
-    #cv2.imshow('Project 4 Main Display', outFrame) #Displays output frame
-    ret, buffer = cv2.imencode('.jpg', outFrame)
-    if not ret:
-        continue
-    frame_bytes = buffer.tobytes()
-    # Yield frame in HTTP multipart format
-    yield (b'--frame\r\n'
-           b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-    currState = nextState #Syncs current state
-#End While
+                #end if
+                outFrame = frame #Writes frame
+            #End Case
+        #End Select
+        cv2.imshow('Project 4 Main Display', outFrame) #Displays output frame
+        k = cv2.waitKey(30) & 0xff #Gets keystroke
+        if k == 113: #Quit key
+            cap.release()
+            cv2.destroyAllWindows()
+            break
+        currState = nextState #Syncs current state
+        ret, buffer = cv2.imencode('.jpg', out_Frame)
+        frame_bytes = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+    #End While
 
 @app.route('/')
 def index():
@@ -147,7 +164,11 @@ def video_feed():
 
 if __name__ == '__main__':
     # Run Flask app
-    app.run(host='0.0.0.1', port=5000, debug=False, threaded=True)
+    app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
+
+
+
+
 
 
 
