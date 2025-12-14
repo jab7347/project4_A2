@@ -139,12 +139,6 @@ def generate_Frames():
                 outFrame = frame #Writes frame
             #End Case
         #End Select
-        cv2.imshow('Project 4 Main Display', outFrame) #Displays output frame
-        k = cv2.waitKey(30) & 0xff #Gets keystroke
-        if k == 113: #Quit key
-            cap.release()
-            cv2.destroyAllWindows()
-            break
         currState = nextState #Syncs current state
         ret, buffer = cv2.imencode('.jpg', out_Frame)
         frame_bytes = buffer.tobytes()
