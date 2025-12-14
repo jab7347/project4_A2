@@ -86,8 +86,6 @@ pName = "UNKNOWN"
 tracking = False #Init. tracking to false
 look_at_me = False #Defaults look at me to false
 cap = cv2.VideoCapture(0) #Sets up the video capture
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
 #camCenterX = cap.get(cv2.CAP_PROP_FRAME_WIDTH)/2
 #camCenterY = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)/2
