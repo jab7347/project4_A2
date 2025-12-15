@@ -138,8 +138,8 @@ def generate_Frames():
                             tx = (fx-camCenterX) * Kp_x
                             ty = (fy-camCenterY) * Kp_y
                             print(tx, ty)
-                            rot = rot + tx
-                            el = el + ty
+                            rot = rot - tx
+                            el = el - ty
                             if rot >= x_high_lim:
                                 rot = x_high_lim
                             elif rot <= x_low_lim:
