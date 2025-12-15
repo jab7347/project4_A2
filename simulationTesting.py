@@ -116,7 +116,7 @@ def generate_Frames():
             case "FACE_DETECT": #Face detect mode
                 print("FACE_DETECT")
                 frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                result = mtcnn.detect_faces(frame_gray) #Runs the model on the image
+                result = mtcnn.detect_faces(frame) #Runs the model on the image
                 if len(result) > 0:  # If there was a face found
                     for face in result:
                         x, y, w, h = face['box']
