@@ -83,6 +83,7 @@ PIXEL_TOLERANCE = 50
 
 currState = "NONE" #Sets the default state to SF
 nextState = "FACE_DETECT"
+timeOutFrames = 0
 p0 = [] #Init. point array 0
 debugMd = False
 pName = "UNKNOWN"
