@@ -135,10 +135,10 @@ def generate_Frames():
                             print(tx, ty)
                             #ret = arm.move_xyz(tx, ty, 0)
                             nextState = "NONE"
-                        timeOutFrames = 10
                         #End if
                     #End if
                 #end if
+                timeOutFrames = 10
                 outFrame = frame #Writes frame
             #End Case
         #End Select
