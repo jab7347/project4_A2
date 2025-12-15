@@ -142,7 +142,7 @@ def generate_Frames():
                             el = el + ty
                             if rot >= x_high_lim:
                                 rot = x_high_lim
-                            else if rot <= x_low_lim:
+                            elif rot <= x_low_lim:
                                 rot = x_low_lim
                             #End if
                             ret = arm.move_xyz(1, rot, el)
