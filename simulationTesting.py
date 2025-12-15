@@ -60,6 +60,9 @@ HTML_PAGE = """
 
 #End Sub
 arm = Arm2D()
+x_low_lim = -1
+x_high_lim = 1
+
 # Just print initial status if available
 st = arm.status().get("parsed")
 print(st)
@@ -72,11 +75,11 @@ resNet.eval()
 resNet.to(device)
 
 # Proportional control gain (tune this)
-Kp_x = 0.01  # meters per pixel
-Kp_y = 0.01
+Kp_x = 0.001  # meters per pixel
+Kp_y = 0.001
 
 # Deadzone to avoid jitter
-PIXEL_TOLERANCE = 5
+PIXEL_TOLERANCE = 50
 
 currState = "NONE" #Sets the default state to SF
 nextState = "FACE_DETECT"
@@ -126,17 +129,25 @@ def generate_Frames():
                     if faceFound:
                         #Calculates pixel error and converts based on scaled values
                         fx, fy = destCenter
-                        print(fx,fy)
                         if abs(fx) > PIXEL_TOLERANCE or abs(fy) > PIXEL_TOLERANCE:
                             tx = (fx-camCenterX) * Kp_x
                             ty = (fy-camCenterY) * Kp_y
-                            ret = arm.move_xyz(tx, ty, 0)
+                            print(tx, ty)
+                            #ret = arm.move_xyz(tx, ty, 0)
+                            nextState = "NONE"
+                        timeOutFrames = 10
                         #End if
                     #End if
                 #end if
                 outFrame = frame #Writes frame
             #End Case
         #End Select
+        if timeOutFrames <=0:
+            nextState = "FACE_DETECT"
+        else:
+            timeOutFrames -= 1
+        #End If
+        
         currState = nextState #Syncs current state
         ret, buffer = cv2.imencode('.jpg', outFrame)
         frame_bytes = buffer.tobytes()
