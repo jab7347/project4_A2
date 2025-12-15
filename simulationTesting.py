@@ -126,10 +126,10 @@ def generate_Frames():
                         pName = id_face(trans,resNet,cropped_frame,device)
                         if pName != reqPer:
                             destCenter = x+(w/2) , y + (h/2)
-                            cv2.circle(frame,( int(x+(w/2)), int(y + (h/2)) ),5,(0,255,0),2)
-                            cv2.circle(frame,(int(camCenterX),int(camCenterY)),5,(0,255,0),2)
-                            cv2.line(frame, ( int(x+(w/2)), int(y + (h/2)) ),(int(camCenterX),int(camCenterY)),(0,0,255),4)
-                            cv2.putText(frame,"JACKSON B.",(x,y),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2)
+                            frame = cv2.circle(frame,( int(x+(w/2)), int(y + (h/2)) ),5,(0,255,0),2)
+                            frame = cv2.circle(frame,(int(camCenterX),int(camCenterY)),5,(0,255,0),2)
+                            frame = cv2.line(frame, ( int(x+(w/2)), int(y + (h/2)) ),(int(camCenterX),int(camCenterY)),(0,0,255),4)
+                            frame = cv2.putText(frame,"JACKSON B.",(x,y),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2)
                             faceFound = True
                             break
                         # end if
