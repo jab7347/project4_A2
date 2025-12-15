@@ -17,7 +17,6 @@ from flask import Flask, Response, render_template_string
 #Step 3: Determine Translation required to move
 #Step 4: Move to the location specified by the translation
 
-
 def id_face(trans,resNet,cropped_frame,device):
     pil_image = Image.fromarray(cropped_frame) #Tranforms the image in into the PIL format
     imgTensor = trans(pil_image).unsqueeze(0) #converts into Tensor + 1 dimension for batch(unused)
@@ -52,7 +51,7 @@ HTML_PAGE = """
     <title>Webcam Stream</title>
 </head>
 <body>
-    <h1>JACKSON B. PROJECT 4</h1>
+    <h1>PROJECT 4 || SEARCHING FOR JACKSON B.</h1>
     <img src="{{ url_for('video_feed') }}" width="640" height="480">
 </body>
 </html>
@@ -77,7 +76,7 @@ resNet = InceptionResnetV1(num_classes=5,classify=True)
 resNet.load_state_dict(torch.load("best.pth",map_location=device,weights_only=True)) #Loads pretrained weights
 resNet.eval()
 resNet.to(device)
-
+reqPer = ""
 # Proportional control gain (tune this)
 Kp_x = 0.00175  # meters per pixel
 Kp_y = 0.25
@@ -98,8 +97,7 @@ cap = cv2.VideoCapture(0) #Sets up the video capture
 #camCenterX = cap.get(cv2.CAP_PROP_FRAME_WIDTH)/2
 #camCenterY = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)/2
 
-trans = transforms.Compose([transforms.Resize((120,120)),transforms.ToTensor(),]) #Transform function
-reqPer = "ANTHONY"
+trans = transforms.Compose([transforms.Resize((160,160)),transforms.ToTensor()]) #Transform function
 faceFound = False
 ret,frame = cap.read() #Gets a sample frame to determine window size
 #frame = cv2.imread("test2.jpg")
@@ -118,16 +116,20 @@ def generate_Frames():
             case "FACE_DETECT": #Face detect mode
                 print("FACE_DETECT")
                 frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                result = mtcnn.detect_faces(frame) #Runs the model on the image
+                result = mtcnn.detect_faces(frame_gray) #Runs the model on the image
                 if len(result) > 0:  # If there was a face found
                     for face in result:
                         x, y, w, h = face['box']
                         roi = frame_gray[y:y + h, x:x + w]  # Returns cropped region of interest for face
                         cropped_frame = frame[y:y + h, x:x + w]  # Crops the image to only include the face
+                        cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
                         pName = id_face(trans,resNet,cropped_frame,device)
-                        print(pName)
-                        if pName == reqPer:
+                        if pName != reqPer:
                             destCenter = x+(w/2) , y + (h/2)
+                            cv2.circle(frame,( int(x+(w/2)), int(y + (h/2)) ),5,(0,255,0),2)
+                            cv2.circle(frame,(int(camCenterX),int(camCenterY)),5,(0,255,0),2)
+                            cv2.line(frame, ( int(x+(w/2)), int(y + (h/2)) ),(int(camCenterX),int(camCenterY)),(0,0,255),4)
+                            cv2.putText(frame,"JACKSON B.",(x,y),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2)
                             faceFound = True
                             break
                         # end if
