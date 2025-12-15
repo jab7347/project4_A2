@@ -83,7 +83,7 @@ Kp_x = 0.001  # meters per pixel
 Kp_y = 0.15
 
 # Deadzone to avoid jitter
-PIXEL_TOLERANCE = 50
+PIXEL_TOLERANCE = 5
 
 currState = "NONE" #Sets the default state to SF
 nextState = "FACE_DETECT"
@@ -98,7 +98,7 @@ cap = cv2.VideoCapture(0) #Sets up the video capture
 #camCenterX = cap.get(cv2.CAP_PROP_FRAME_WIDTH)/2
 #camCenterY = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)/2
 
-trans = transforms.Compose([transforms.Resize((680,680)),transforms.ToTensor(),]) #Transform function
+trans = transforms.Compose([transforms.Resize((240,240)),transforms.ToTensor(),]) #Transform function
 reqPer = "ANTHONY"
 faceFound = False
 ret,frame = cap.read() #Gets a sample frame to determine window size
