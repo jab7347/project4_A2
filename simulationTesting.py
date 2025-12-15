@@ -62,9 +62,13 @@ HTML_PAGE = """
 arm = Arm2D()
 x_low_lim = -1
 x_high_lim = 1
-
+y_high = 150
+y_low = 0
+rot = 0
+el = 0
 # Just print initial status if available
 st = arm.status().get("parsed")
+arm.move_xyz(0,0,0)
 print(st)
 #Sets up NN Models
 mtcnn = MTCNN(device="CPU")
@@ -76,7 +80,7 @@ resNet.to(device)
 
 # Proportional control gain (tune this)
 Kp_x = 0.001  # meters per pixel
-Kp_y = 0.001
+Kp_y = 0.15
 
 # Deadzone to avoid jitter
 PIXEL_TOLERANCE = 50
@@ -134,7 +138,9 @@ def generate_Frames():
                             tx = (fx-camCenterX) * Kp_x
                             ty = (fy-camCenterY) * Kp_y
                             print(tx, ty)
-                            #ret = arm.move_xyz(tx, ty, 0)
+                            rot = rot + tx
+                            el = el + ty
+                            ret = arm.move_xyz(1, tx, ty)
                             nextState = "NONE"
                         #End if
                     #End if
