@@ -67,7 +67,7 @@ rot = 0
 el = 0
 # Just print initial status if available
 st = arm.status().get("parsed")
-arm.move_xyz(0,0,0)
+arm.move_xyz(0,0,1)
 print(st)
 #Sets up NN Models
 mtcnn = MTCNN(device="CPU")
@@ -111,7 +111,7 @@ def generate_Frames():
         ret, frame = cap.read() #Reads in frame from video capture
         match currState: #Sustaning Machine, state setup does not occur here
             case "NONE": #Straight frane passthrough
-                outFrame = frame
+                print("NONE")
             #End Case
             case "FACE_DETECT": #Face detect mode
                 print("FACE_DETECT")
@@ -152,7 +152,7 @@ def generate_Frames():
                         #End if
                     #End if
                 #end if
-                timeOutFrames = 10
+                timeOutFrames = 4
                 outFrame = frame #Writes frame
             #End Case
         #End Select
