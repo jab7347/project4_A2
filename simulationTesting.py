@@ -150,7 +150,7 @@ def generate_Frames():
                         #End if
                     #End if
                 #end if
-                timeOutFrames = 10
+                timeOutFrames = 20
                 outFrame = frame #Writes frame
             #End Case
         #End Select
