@@ -79,7 +79,7 @@ resNet.eval()
 resNet.to(device)
 
 # Proportional control gain (tune this)
-Kp_x = 0.0025  # meters per pixel
+Kp_x = 0.0020  # meters per pixel
 Kp_y = 0.20
 
 # Deadzone to avoid jitter
