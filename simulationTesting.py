@@ -140,7 +140,12 @@ def generate_Frames():
                             print(tx, ty)
                             rot = rot + tx
                             el = el + ty
-                            ret = arm.move_xyz(1, tx, ty)
+                            if rot >= x_high_lim:
+                                rot = x_high_lim
+                            else if rot <= x_low_lim:
+                                rot = x_low_lim
+                            #End if
+                            ret = arm.move_xyz(1, rot, el)
                             nextState = "NONE"
                         #End if
                     #End if
