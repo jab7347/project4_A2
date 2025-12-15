@@ -93,20 +93,20 @@ pName = "UNKNOWN"
 tracking = False #Init. tracking to false
 look_at_me = False #Defaults look at me to false
 cap = cv2.VideoCapture(0) #Sets up the video capture
-
 #camCenterX = cap.get(cv2.CAP_PROP_FRAME_WIDTH)/2
 #camCenterY = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)/2
 
 trans = transforms.Compose([transforms.Resize((160,160)),transforms.ToTensor()]) #Transform function
 faceFound = False
 ret,frame = cap.read() #Gets a sample frame to determine window size
+outFrame = frame
 #frame = cv2.imread("test2.jpg")
 h,w,_ = frame.shape #Gets window size
 print(w,h)
 camCenterX, camCenterY = w/2,h/2
 
 def generate_Frames():
-    global currState, nextState, timeOutFrames, rot, el, faceFound
+    global currState, nextState, timeOutFrames, rot, el, faceFound, outFrame
     while(1): #Main while loop which holds the state machine
         ret, frame = cap.read() #Reads in frame from video capture
         match currState: #Sustaning Machine, state setup does not occur here
