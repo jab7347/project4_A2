@@ -104,7 +104,7 @@ print(w,h)
 camCenterX, camCenterY = w/2,h/2
 
 def generate_Frames():
-    global currState
+    global currState, timeOutFrames
     while(1): #Main while loop which holds the state machine
         ret, frame = cap.read() #Reads in frame from video capture
         match currState: #Sustaning Machine, state setup does not occur here
