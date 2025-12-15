@@ -79,8 +79,8 @@ resNet.eval()
 resNet.to(device)
 
 # Proportional control gain (tune this)
-Kp_x = 0.001  # meters per pixel
-Kp_y = 0.15
+Kp_x = 0.0025  # meters per pixel
+Kp_y = 0.20
 
 # Deadzone to avoid jitter
 PIXEL_TOLERANCE = 5
@@ -98,7 +98,7 @@ cap = cv2.VideoCapture(0) #Sets up the video capture
 #camCenterX = cap.get(cv2.CAP_PROP_FRAME_WIDTH)/2
 #camCenterY = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)/2
 
-trans = transforms.Compose([transforms.Resize((240,240)),transforms.ToTensor(),]) #Transform function
+trans = transforms.Compose([transforms.Resize((120,120)),transforms.ToTensor(),]) #Transform function
 reqPer = "ANTHONY"
 faceFound = False
 ret,frame = cap.read() #Gets a sample frame to determine window size
@@ -150,7 +150,7 @@ def generate_Frames():
                         #End if
                     #End if
                 #end if
-                timeOutFrames = 20
+                timeOutFrames = 10
                 outFrame = frame #Writes frame
             #End Case
         #End Select
