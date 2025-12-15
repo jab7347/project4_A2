@@ -62,12 +62,12 @@ arm = Arm2D()
 x_low_lim = -1
 x_high_lim = 1
 y_high = 150
-y_low = 0
+y_low = 50
 rot = 0
 el = 0
 # Just print initial status if available
 st = arm.status().get("parsed")
-arm.move_xyz(0,0,1)
+arm.move_xyz(0,0,50)
 print(st)
 #Sets up NN Models
 mtcnn = MTCNN(device="CPU")
